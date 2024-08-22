@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { getDocs, collection, deleteDoc, doc } from "firebase/firestore";
-import { db } from "../firebase";
-import { FaTrash } from "react-icons/fa";
-import Swal from "sweetalert2";
-import { useAuth } from "../hooks/useAuth";
+import React, { useEffect, useState } from 'react';
+import {
+  getDocs,
+  collection,
+  doc,
+  query,
+  where,
+  updateDoc,
+} from 'firebase/firestore';
+import { db } from '../firebase';
+import { FaTrash } from 'react-icons/fa';
+import Swal from 'sweetalert2';
+import { useAuth } from '../hooks/useAuth';
 
 const ViewMahasiswa = () => {
   useAuth();
@@ -11,41 +18,57 @@ const ViewMahasiswa = () => {
   const handleDelete = async (mahasiswaId) => {
     try {
       const result = await Swal.fire({
-        title: "Apakah Anda yakin?",
-        text: "Anda tidak akan dapat mengembalikan ini!",
-        icon: "warning",
+        title: 'Apakah Anda yakin?',
+        text: 'Anda tidak akan dapat mengembalikan ini!',
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Ya, hapus!",
-        cancelButtonText: "Batal",
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
       });
+
       if (result.isConfirmed) {
-        await deleteDoc(doc(db, "Mahasiswa", mahasiswaId));
+        const mahasiswaRef = doc(db, 'users', mahasiswaId);
+        await updateDoc(mahasiswaRef, {
+          role: 'inactive',
+        });
+
         setMahasiswa((mahasiswa) =>
           mahasiswa.filter((item) => item.id !== mahasiswaId)
         );
-        await Swal.fire("Terhapus!", "Data Anda telah dihapus.", "success");
+        await Swal.fire(
+          'Terhapus!',
+          'Data Mahasiswa telah dihapus.',
+          'success'
+        );
       }
     } catch (error) {
       await Swal.fire(
-        "Error!",
-        "Terjadi kesalahan saat menghapus data.",
-        "error"
+        'Error!',
+        'Terjadi kesalahan saat menghapus data.',
+        'error'
       );
-      console.error("Error deleting document: ", error);
+      console.error('Error updating document: ', error);
     }
   };
 
-
   useEffect(() => {
     const fetchData = async () => {
-      const mahasiswaData = await getDocs(collection(db, "Mahasiswa"));
-      const formattedMahasiswa = mahasiswaData.docs.map((doc) => {
-        const data = doc.data();
-        return { ...data, id: doc.id };
-      });
-      setMahasiswa(formattedMahasiswa);
+      try {
+        const mahasiswaQuery = query(
+          collection(db, 'users'),
+          where('nim', '!=', '')
+        );
+        const mahasiswaSnapshot = await getDocs(mahasiswaQuery);
+        const formattedMahasiswa = mahasiswaSnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        setMahasiswa(formattedMahasiswa);
+      } catch (error) {
+        console.error('Error fetching data: ', error);
+      }
     };
     fetchData();
   }, []);
@@ -71,18 +94,18 @@ const ViewMahasiswa = () => {
             {mahasiswa.map((data, index) => (
               <tr
                 key={index}
-                className={index % 2 === 0 ? "bg-slate-50" : "bg-slate-100"}
-              >
+                className={index % 2 === 0 ? 'bg-slate-50' : 'bg-slate-100'}>
                 <td className="py-2 text-center px-4">{index + 1}</td>
-                <td className="py-2 px-4">{data.NIM}</td>
-                <td className="py-2 px-4">{data.Nama}</td>
-                <td className="py-2 px-4">{data.Email}</td>
-                <td className="py-2 px-4">{data.Phone}</td>
+                <td className="py-2 px-4">{data.nim}</td>
+                <td className="py-2 px-4">
+                  {data.firstName} {data.lastName}
+                </td>
+                <td className="py-2 px-4">{data.email}</td>
+                <td className="py-2 px-4">{data.phone}</td>
                 <td className="py-2 px-4">
                   <button
                     onClick={() => handleDelete(data.id)}
-                    className="text-red-500 flex items-center gap-2 hover:text-red-700"
-                  >
+                    className="text-red-500 flex items-center gap-2 hover:text-red-700">
                     <FaTrash /> <p>Hapus</p>
                   </button>
                 </td>

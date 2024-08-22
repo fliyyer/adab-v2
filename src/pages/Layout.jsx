@@ -11,12 +11,11 @@ import {
   EyeOutlined,
   PlusOutlined,
   LogoutOutlined,
-  FormOutlined
+  FormOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme } from 'antd';
 import { useAuth } from '../hooks/useAuth';
 const { Header, Sider, Content } = Layout;
-
 
 const Layouts = () => {
   useAuth();
@@ -60,7 +59,7 @@ const Layouts = () => {
       children,
       label,
       type,
-      onClick
+      onClick,
     };
   }
 
@@ -101,7 +100,14 @@ const Layouts = () => {
       getItem('Add Jadwal', '7', <PlusOutlined />),
       getItem('View Jadwal', '8', <EyeOutlined />),
     ]),
-    getItem('Logout', '10', <LogoutOutlined />, null, null, showLogoutConfirmation),
+    getItem(
+      'Logout',
+      '10',
+      <LogoutOutlined />,
+      null,
+      null,
+      showLogoutConfirmation
+    ),
   ];
 
   const [collapsed, setCollapsed] = useState(false);
@@ -110,10 +116,13 @@ const Layouts = () => {
   } = theme.useToken();
 
   return (
-    <main className='flex'>
+    <main className="flex">
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className='text-[16px] font-bold bg-[#1B9AD7]  py-5 justify-between px-[30px] flex'>
-          <Link to="/" className='text-white hover:text-white'><FormOutlined className='mr-2' />{collapsed ? '' : 'ADAB'}</Link>
+        <div className="text-[16px] font-bold bg-[#1B9AD7]  py-5 justify-between px-[30px] flex">
+          <Link to="/" className="text-white hover:text-white">
+            <FormOutlined className="mr-2" />
+            {collapsed ? '' : 'ADAB'}
+          </Link>
         </div>
         <Menu
           mode="inline"
@@ -125,14 +134,13 @@ const Layouts = () => {
           onClick={({ key }) => handleMenuClick({ key })}
         />
       </Sider>
-      <main className='w-full'>
+      <main className="w-full">
         <Header
           style={{
             padding: 0,
-            background: "#1B9AD7",
-            color: "#fff",
-          }}
-        >
+            background: '#1B9AD7',
+            color: '#fff',
+          }}>
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -144,7 +152,9 @@ const Layouts = () => {
               height: 64,
             }}
           />
-          <Link className="text-white hover:text-white" to="/">Dashboard</Link>
+          <Link className="text-white hover:text-white" to="/">
+            Dashboard
+          </Link>
         </Header>
         <Content
           style={{
@@ -153,14 +163,12 @@ const Layouts = () => {
             minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
-          }}
-        >
+          }}>
           <Outlet />
         </Content>
       </main>
     </main>
   );
 };
-
 
 export default Layouts;

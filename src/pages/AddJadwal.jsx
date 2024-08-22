@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import JadwalFormInput from '../components/JadwalFormInput';
-import { getDocs, collection } from 'firebase/firestore';
+import { getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
 
@@ -8,25 +8,31 @@ const AddJadwal = () => {
   useAuth();
   const [listMatakuliah, setListMatakuliah] = useState([]);
   const [listDosen, setListDosen] = useState([]);
-  const [jadwal, setJadwal] = useState([])
+  const [jadwal, setJadwal] = useState([]);
 
   const handleJadwalSubmit = (jadwalData) => {
     setJadwal([...jadwal, jadwalData]);
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const matakuliahData = await getDocs(collection(db, 'mataKuliah'));
-        const formattedMatakuliah = matakuliahData.docs.map((doc) => ({
+        const matakuliahSnapshot = await getDocs(collection(db, 'mataKuliah'));
+        const formattedMatakuliah = matakuliahSnapshot.docs.map((doc) => ({
           value: doc.id,
           label: doc.data().nama,
+          shifts: doc.data().shift || doc.data().shifts,
         }));
         setListMatakuliah(formattedMatakuliah);
-        const dosenData = await getDocs(collection(db, 'Dosen'));
-        const formattedDosen = dosenData.docs.map((doc) => ({
+
+        const dosenQuery = query(
+          collection(db, 'users'),
+          where('role', '==', 'dosen')
+        );
+        const dosenSnapshot = await getDocs(dosenQuery);
+        const formattedDosen = dosenSnapshot.docs.map((doc) => ({
           value: doc.id,
-          label: doc.data().namaDosen,
+          label: doc.data().firstName + ' ' + doc.data().lastName,
         }));
         setListDosen(formattedDosen);
       } catch (error) {
@@ -39,7 +45,11 @@ const AddJadwal = () => {
 
   return (
     <div className="flex flex-col overflow-auto custom-scrollbar h-full">
-      <JadwalFormInput listMatakuliah={listMatakuliah} listDosen={listDosen} onJadwalSubmit={handleJadwalSubmit} />
+      <JadwalFormInput
+        listMatakuliah={listMatakuliah}
+        listDosen={listDosen}
+        onJadwalSubmit={handleJadwalSubmit}
+      />
     </div>
   );
 };

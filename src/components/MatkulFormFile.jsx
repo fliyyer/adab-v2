@@ -34,9 +34,8 @@ const MatkulFormFile = ({ onFileUpload }) => {
             kodeMataKuliah: row[1],
             nama: row[2],
             sks: row[3],
-            tanggal: row[4],
+            semester: row[4],
             shift: row[5],
-            semester: row[6],
           }));
 
           mataKuliahData.forEach(async (data) => {
@@ -61,9 +60,8 @@ const MatkulFormFile = ({ onFileUpload }) => {
           kodeMataKuliah: row['Kode Mata Kuliah'],
           nama: row['Nama'],
           sks: row['SKS'],
-          tanggal: row['Tanggal'],
-          shift: row['Shift'],
           semester: row['Semester'],
+          shift: row['Shift'],
         }));
 
         console.log('Parsed XLSX:', mataKuliahData);
